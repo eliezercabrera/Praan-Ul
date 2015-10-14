@@ -37,13 +37,17 @@ Bool died_quickly = true
 Event OnInit()
   Debug.Trace("Initializing script.")
   MasterSoundCategory.SetVolume(1.0)
-  Game.SetGameSettingFloat("fPlayerDeathReloadTime", 7.0)
+  Game.SetGameSettingFloat("fPlayerDeathReloadTime", 0.01)
+  player_property.GetActorBase().SetEssential(True)
+  ;player_property.StartDeferredKill()
 EndEvent
 
 Event OnPlayerLoadGame()
   MasterSoundCategory.SetVolume(1.0)
-  Game.SetGameSettingFloat("fPlayerDeathReloadTime", 7.0)
+ Game.SetGameSettingFloat("fPlayerDeathReloadTime", 0.01)
   QuomoZRealisticDeathQ.RegisterForModEvent("QuomoZRealisticDeath_PlayerDied", "OnPlayerDied")
+  player_property.GetActorBase().SetEssential(True)
+  ;player_property.StartDeferredKill()
 EndEvent
 
 Event OnHit(ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked)
@@ -51,7 +55,7 @@ Event OnHit(ObjectReference akAggressor, Form akSource, Projectile akProjectile,
     is_player_alive = false
     LastAggressor = akAggressor as Actor
     If (abPowerAttack || Math.abs(player_property.GetActorValuePercentage("Health")) >= 0.15)
-      Game.SetGameSettingFloat("fPlayerDeathReloadTime", 5.0)
+      ;Game.SetGameSettingFloat("fPlayerDeathReloadTime", 5.0)
       died_quickly = true
     EndIf
   EndIf
@@ -65,29 +69,37 @@ Function SendDeathEvent()
     EndIf
 EndFunction
 
-Event OnDying(Actor akKiller)
+Event OnEnterBleedout()
+  Debug.Notification("Entering bleedout state.")
+  Game.DisablePlayerControls(abMovement = true, abFighting = true)
+	player_property.StopCombat()
+	player_property.StopCombatAlarm()
   If (died_quickly)
     SendDeathEvent()
   
-    QuomoZBlurHoldIMod.ApplyCrossFade(0.2) ; Blur vision
-    QuomoZFadeToBlackImod.ApplyCrossFade(0.2) ; Fade vision to black
+    ;QuomoZBlurHoldIMod.ApplyCrossFade(0.2) ; Blur vision
+    ;QuomoZFadeToBlackImod.ApplyCrossFade(0.2) ; Fade vision to black
     Utility.Wait(0.15)
-	  QuomoZFadeToBlackImod.PopTo(QuomoZFadeToBlackHoldImod) ; Retain black vision
-    Utility.Wait(10.0) ; Reflect about your death in darkness
+	  ;QuomoZFadeToBlackImod.PopTo(QuomoZFadeToBlackHoldImod) ; Retain black vision
+    ;Utility.Wait(10.0) ; Reflect about your death in darkness
   Else
     SendDeathEvent()
-    Utility.Wait(0.5) ; regular vision
+    ;Utility.Wait(0.5) ; regular vision
   
-    QuomoZBlurHoldIMod.ApplyCrossFade(1.8) ; Blur vision
+    ;QuomoZBlurHoldIMod.ApplyCrossFade(1.8) ; Blur vision
     Utility.Wait(1.6)
   
-    QuomoZFadeToBlackImod.ApplyCrossFade(2.7) ; Fade vision to black
+    ;QuomoZFadeToBlackImod.ApplyCrossFade(2.7) ; Fade vision to black
 	  Utility.Wait(2.5)
   
-	  QuomoZFadeToBlackImod.PopTo(QuomoZFadeToBlackHoldImod) ; Retain black vision
-    Utility.Wait(10.0) ; Reflect about your death in darkness
-    ;player_property.Kill()
+	  ;QuomoZFadeToBlackImod.PopTo(QuomoZFadeToBlackHoldImod) ; Retain black vision
+    Utility.Wait(5.0) ; Reflect about your death in darkness
   EndIf
+  
+  player_property.GetActorBase().SetEssential(False)
+  player_property.KillEssential()
+  ;player_property.EndDeferredKill()
+  
 EndEvent 
 
 Spell Property QuomoZRealisticDeathDisarmSelf  Auto  
