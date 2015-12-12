@@ -37,14 +37,16 @@ Bool died_quickly = true
 Event OnInit()
   Debug.Trace("Initializing script.")
   MasterSoundCategory.SetVolume(1.0)
-  Game.SetGameSettingFloat("fPlayerDeathReloadTime", 0.01)
+  AudioCategoryMUS.UnMute()
+  ;Game.SetGameSettingFloat("fPlayerDeathReloadTime", 10.0) Set for removal
   player_property.GetActorBase().SetEssential(True)
   ;player_property.StartDeferredKill()
 EndEvent
 
 Event OnPlayerLoadGame()
   MasterSoundCategory.SetVolume(1.0)
- Game.SetGameSettingFloat("fPlayerDeathReloadTime", 0.01)
+  AudioCategoryMUS.UnMute()
+  ;Game.SetGameSettingFloat("fPlayerDeathReloadTime", 10.0) Set for removal
   QuomoZRealisticDeathQ.RegisterForModEvent("QuomoZRealisticDeath_PlayerDied", "OnPlayerDied")
   player_property.GetActorBase().SetEssential(True)
   ;player_property.StartDeferredKill()
@@ -74,27 +76,19 @@ Event OnEnterBleedout()
   Game.DisablePlayerControls(abMovement = true, abFighting = true)
 	player_property.StopCombat()
 	player_property.StopCombatAlarm()
-  If (died_quickly)
-    SendDeathEvent()
-  
-    ;QuomoZBlurHoldIMod.ApplyCrossFade(0.2) ; Blur vision
-    ;QuomoZFadeToBlackImod.ApplyCrossFade(0.2) ; Fade vision to black
-    Utility.Wait(0.15)
-	  ;QuomoZFadeToBlackImod.PopTo(QuomoZFadeToBlackHoldImod) ; Retain black vision
-    ;Utility.Wait(10.0) ; Reflect about your death in darkness
-  Else
-    SendDeathEvent()
-    ;Utility.Wait(0.5) ; regular vision
-  
-    ;QuomoZBlurHoldIMod.ApplyCrossFade(1.8) ; Blur vision
-    Utility.Wait(1.6)
-  
-    ;QuomoZFadeToBlackImod.ApplyCrossFade(2.7) ; Fade vision to black
-	  Utility.Wait(2.5)
-  
-	  ;QuomoZFadeToBlackImod.PopTo(QuomoZFadeToBlackHoldImod) ; Retain black vision
-    Utility.Wait(5.0) ; Reflect about your death in darkness
-  EndIf
+  ;If (died_quickly)
+
+  SendDeathEvent()
+  Utility.Wait(0.5) ; regular vision
+
+  QuomoZBlurHoldIMod.ApplyCrossFade(1.8) ; Blur vision
+  Utility.Wait(1.6)
+
+  QuomoZFadeToBlackImod.ApplyCrossFade(2.7) ; Fade vision to black
+  Utility.Wait(2.5)
+
+  QuomoZFadeToBlackImod.PopTo(QuomoZFadeToBlackHoldImod) ; Retain black vision
+  Utility.Wait(5.0) ; Reflect about your death in darkness
   
   player_property.GetActorBase().SetEssential(False)
   player_property.KillEssential()
@@ -103,3 +97,5 @@ Event OnEnterBleedout()
 EndEvent 
 
 Spell Property QuomoZRealisticDeathDisarmSelf  Auto  
+
+SoundCategory Property AudioCategoryMUS  Auto  
