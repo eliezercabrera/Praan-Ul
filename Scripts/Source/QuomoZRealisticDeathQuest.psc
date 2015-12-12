@@ -5,6 +5,13 @@ Event OnInit()
 EndEvent
 
 Event OnPlayerDied(Bool died_quickly)
+
+  If (QuomoZInstantMusicMuteToggle.GetValue() == 0)
+    Debug.MessageBox("The toggle is not set.")
+  ElseIf (QuomoZInstantMusicMuteToggle.GetValue()  == 1)
+    Debug.MessageBox("The toggle is set.")
+  EndIf
+
   If (died_quickly)
     Float initial_volume = 1.0
     Float final_volume   = 0.0
@@ -26,3 +33,5 @@ Event OnPlayerDied(Bool died_quickly)
 EndEvent
 
 SoundCategory Property MasterSoundCategory  Auto  
+
+GlobalVariable Property QuomoZInstantMusicMuteToggle  Auto  

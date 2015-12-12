@@ -11,7 +11,8 @@ int iTextToggleState = 1
 int iGlobalBitFieldOID
 int iTextOptionOID
 
-GlobalVariable Property QuomoZTestCheckbox Auto
+GlobalVariable Property QuomoZTestCheckbox Auto ;Marked for deletion when reattaching script to Creation Kit.
+GlobalVariable Property QuomoZInstantMusicMuteToggle  Auto  
 
 event OnConfigInit()
     Pages = new string[3]
@@ -29,7 +30,7 @@ Event OnPageReset(string page)
 		DefineMCMParagraph("This page demonstrates use of widgets tied to GlobalVariables.\n\nThis is by far the easiest and recommended method for leveraging MCM Helper.")
 		SetCursorPosition(1)
 		AddHeaderOption("Global widgets")
-		DefineMCMToggleOptionGlobal("Mute Music Instantly", QuomoZTestCheckbox, 0, "If not selected, the background music will fade away alongside other sounds.")
+		DefineMCMToggleOptionGlobal("Mute Music Instantly", QuomoZInstantMusicMuteToggle, 0, "If not selected, the background music will fade away alongside other sounds.")
   ElseIf page == "Paragraphs"
 		DefineMCMParagraph("Paragraphs are intented to display multi-line information in MCM menus.\nAll of the text your are reading comes from a single line of code.\nStrings in paragraphs are automatically wrapped so as to stay within bounds.\nNewline characters are also supported in paragraphs.\nThe default flag for paragraphs is as disabled, which makes them easy to read, differentiate them from usable controls, and not highlight when moused over.")
 		SetCursorPosition(1)
@@ -79,3 +80,4 @@ EndEvent
 Event OnTextToggleChange(string eventName, string strArg, float numArg, Form sender)
 	iTextToggleState = numArg as int
 EndEvent
+
