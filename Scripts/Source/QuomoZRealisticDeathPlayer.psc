@@ -35,9 +35,9 @@ Bool died_quickly = true
 ;;        Extend magical effect that can be dispelled for safe uninstallation
 
 Event OnInit()
-  Debug.Trace("Initializing script.")
+  ;Debug.Trace("Initializing script.") Set for removal
   MasterSoundCategory.SetVolume(1.0)
-  AudioCategoryMUS.UnMute()
+  AudioCategoryMUS.UnMute() ; Mute preserves user audio settings better
   ;Game.SetGameSettingFloat("fPlayerDeathReloadTime", 10.0) Set for removal
   player_property.GetActorBase().SetEssential(True)
   ;player_property.StartDeferredKill()
@@ -45,7 +45,7 @@ EndEvent
 
 Event OnPlayerLoadGame()
   MasterSoundCategory.SetVolume(1.0)
-  AudioCategoryMUS.UnMute()
+  AudioCategoryMUS.UnMute() ; Mute preserves user audio settings better
   ;Game.SetGameSettingFloat("fPlayerDeathReloadTime", 10.0) Set for removal
   QuomoZRealisticDeathQ.RegisterForModEvent("QuomoZRealisticDeath_PlayerDied", "OnPlayerDied")
   player_property.GetActorBase().SetEssential(True)

@@ -29,8 +29,9 @@ Event OnPageReset(string page)
 	ElseIf page == "General Settings"
 		DefineMCMParagraph("This page demonstrates use of widgets tied to GlobalVariables.\n\nThis is by far the easiest and recommended method for leveraging MCM Helper.")
 		SetCursorPosition(1)
-		AddHeaderOption("Global widgets")
-		DefineMCMToggleOptionGlobal("Mute Music Instantly", QuomoZInstantMusicMuteToggle, 0, "If not selected, the background music will fade away alongside other sounds.")
+		AddHeaderOption("Audio settings")
+    DefineMCMToggleOptionGlobal("Mute all sound instantly", QuomoZInstantSoundMuteToggle, 0, "If selected, all sound will mute instantly instead of fading away.")
+		DefineMCMToggleOptionGlobal("Mute music instantly", QuomoZInstantMusicMuteToggle, QuomoZInstantSoundMuteToggle.GetValue() as Int, "If not selected, the background music will fade away alongside other sounds.")
   ElseIf page == "Paragraphs"
 		DefineMCMParagraph("Paragraphs are intented to display multi-line information in MCM menus.\nAll of the text your are reading comes from a single line of code.\nStrings in paragraphs are automatically wrapped so as to stay within bounds.\nNewline characters are also supported in paragraphs.\nThe default flag for paragraphs is as disabled, which makes them easy to read, differentiate them from usable controls, and not highlight when moused over.")
 		SetCursorPosition(1)
@@ -81,3 +82,4 @@ Event OnTextToggleChange(string eventName, string strArg, float numArg, Form sen
 	iTextToggleState = numArg as int
 EndEvent
 
+GlobalVariable Property QuomoZInstantSoundMuteToggle  Auto  

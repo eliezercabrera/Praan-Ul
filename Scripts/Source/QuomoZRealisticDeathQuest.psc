@@ -6,7 +6,10 @@ EndEvent
 
 Event OnPlayerDied(Bool died_quickly)
 
-  If (QuomoZInstantMusicMuteToggle.GetValue()  == 1)
+  If (QuomoZInstantSoundMuteToggle.GetValue()  == 1)
+    MasterSoundCategory.SetVolume(0.0)
+    Return
+  ElseIf (QuomoZInstantMusicMuteToggle.GetValue()  == 1)
     AudioCategoryMUS.Mute()
   EndIf
 
@@ -26,3 +29,5 @@ SoundCategory Property MasterSoundCategory  Auto
 GlobalVariable Property QuomoZInstantMusicMuteToggle  Auto  
 
 SoundCategory Property AudioCategoryMUS  Auto  
+
+GlobalVariable Property QuomoZInstantSoundMuteToggle  Auto  
