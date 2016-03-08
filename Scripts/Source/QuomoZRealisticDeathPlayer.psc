@@ -15,24 +15,7 @@ Quest Property QuomoZRealisticDeathQ Auto
 Bool is_player_alive = true
 Bool died_quickly = true
 
-;; Add an MCM for the mod:
-;;    Mute music
-;;    Enable Functionality
-;;    Customizable phases
-;;        regular vision
-;;        blurry vision
-;;        fade to black
-;;        independent audio loss
-;;    Three Profiles
-;;        Deadly Blow (Instant Death)
-;;        Powerfull Blow (Quick Death)
-;;        Regular Blow (Slow Death)
-;;    Darkness Duration
-;;    Enable/Disable heartbeat and red screen effect
-;;    Enable/Disable blood drops on screen
-;;    Apply exagerated ragdoll physics fix (check spells and fists)
-;;    Uninstall Mod
-;;        Extend magical effect that can be dispelled for safe uninstallation
+;Allow testing mode to be toggeable via the in-game configuration menu for development purposes
 
 Event OnInit()
   ;Debug.Trace("Initializing script.") Set for removal
