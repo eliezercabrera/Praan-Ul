@@ -12,7 +12,10 @@ int iGlobalBitFieldOID
 int iTextOptionOID
 
 GlobalVariable Property QuomoZTestCheckbox Auto ;Marked for deletion when reattaching script to Creation Kit.
-GlobalVariable Property QuomoZInstantMusicMuteToggle  Auto  
+GlobalVariable Property QuomoZInstantMusicMuteToggle  Auto
+
+GlobalVariable Property QuomoZInstantSoundMuteToggle  Auto
+GlobalVariable Property QuomoZBlankScreenToggle  Auto  
 
 event OnConfigInit()
     Pages = new string[3]
@@ -32,6 +35,7 @@ Event OnPageReset(string page)
 		AddHeaderOption("Audio settings")
     DefineMCMToggleOptionGlobal("Mute all sound instantly", QuomoZInstantSoundMuteToggle, 0, "If selected, all sound will mute instantly instead of fading away.")
 		DefineMCMToggleOptionGlobal("Mute music instantly", QuomoZInstantMusicMuteToggle, QuomoZInstantSoundMuteToggle.GetValue() as Int, "If not selected, the background music will fade away alongside other sounds.")
+    DefineMCMMenuOptionGlobal("Blank Screen Color", "Black,White", QuomoZBlankScreenToggle, 0, OPTION_FLAG_AS_TEXTTOGGLE, "In lieu of showing literal nothingness, choose a color to represent the emptiness of death.")
   ElseIf page == "Paragraphs"
 		DefineMCMParagraph("Paragraphs are intented to display multi-line information in MCM menus.\nAll of the text your are reading comes from a single line of code.\nStrings in paragraphs are automatically wrapped so as to stay within bounds.\nNewline characters are also supported in paragraphs.\nThe default flag for paragraphs is as disabled, which makes them easy to read, differentiate them from usable controls, and not highlight when moused over.")
 		SetCursorPosition(1)
@@ -81,5 +85,3 @@ EndEvent
 Event OnTextToggleChange(string eventName, string strArg, float numArg, Form sender)
 	iTextToggleState = numArg as int
 EndEvent
-
-GlobalVariable Property QuomoZInstantSoundMuteToggle  Auto  

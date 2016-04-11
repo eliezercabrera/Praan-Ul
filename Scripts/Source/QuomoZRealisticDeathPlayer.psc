@@ -8,6 +8,12 @@ Actor Property LastAggressor  Auto
 
 ImageSpaceModifier Property QuomoZFadeToBlackIMod  Auto
 ImageSpaceModifier Property QuomoZFadeToBlackHoldImod  Auto
+
+ImageSpaceModifier Property QuomoZFadeToWhiteIMod  Auto
+ImageSpaceModifier Property QuomoZFadeToWhiteHoldImod  Auto  
+
+GlobalVariable Property QuomoZBlankScreenToggle  Auto
+
 ImageSpaceModifier Property QuomoZBlurHoldIMod  Auto
 
 Quest Property QuomoZRealisticDeathQ Auto
@@ -54,6 +60,27 @@ Function SendDeathEvent()
     EndIf
 EndFunction
 
+Function FadeToBlank()
+  ImageSpaceModifier blankIMod = QuomoZFadeToBlackImod;
+  ImageSpaceModifier blankHoldIMod = QuomoZFadeToBlackHoldImod;
+  
+  If (QuomoZBlankScreenToggle.GetValue() == 1)
+    blankIMod = QuomoZFadeToWhiteImod;
+    blankHoldIMod = QuomoZFadeToWhiteHoldImod;
+  EndIf
+
+  Utility.Wait(0.5) ; regular vision
+
+  QuomoZBlurHoldIMod.ApplyCrossFade(1.8) ; Blur vision
+  Utility.Wait(1.6)
+
+  blankIMod.ApplyCrossFade(2.7) ; Fade vision to black
+  Utility.Wait(3.0)
+
+  blankIMod.PopTo(blankHoldIMod) ; Retain black vision
+  Utility.Wait(5.0) ; Reflect about your death in darkness
+EndFunction
+
 Event OnEnterBleedout()
   Debug.Notification("Entering bleedout state.")
   Game.DisablePlayerControls(abMovement = true, abFighting = true)
@@ -62,16 +89,8 @@ Event OnEnterBleedout()
   ;If (died_quickly)
 
   SendDeathEvent()
-  Utility.Wait(0.5) ; regular vision
-
-  QuomoZBlurHoldIMod.ApplyCrossFade(1.8) ; Blur vision
-  Utility.Wait(1.6)
-
-  QuomoZFadeToBlackImod.ApplyCrossFade(2.7) ; Fade vision to black
-  Utility.Wait(2.5)
-
-  QuomoZFadeToBlackImod.PopTo(QuomoZFadeToBlackHoldImod) ; Retain black vision
-  Utility.Wait(5.0) ; Reflect about your death in darkness
+  
+  FadeToBlank();
   
   player_property.GetActorBase().SetEssential(False)
   player_property.KillEssential()
@@ -81,4 +100,4 @@ EndEvent
 
 Spell Property QuomoZRealisticDeathDisarmSelf  Auto  
 
-SoundCategory Property AudioCategoryMUS  Auto  
+SoundCategory Property AudioCategoryMUS  Auto   
