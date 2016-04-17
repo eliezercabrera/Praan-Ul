@@ -6,20 +6,24 @@ EndEvent
 
 Event OnPlayerDied(Bool died_quickly)
 
-  If (QuomoZInstantSoundMuteToggle.GetValue()  == 1)
-    MasterSoundCategory.SetVolume(0.0)
+  Float silence = 0.0
+
+  If (QuomoZInstantSoundMuteToggle.GetValueInt() == 1)
+    MasterSoundCategory.SetVolume(silence)
     Return
-  ElseIf (QuomoZInstantMusicMuteToggle.GetValue()  == 1)
+  ElseIf (QuomoZInstantMusicMuteToggle.GetValueInt() == 1)
     AudioCategoryMUS.Mute()
   EndIf
 
-  Float initial_volume = 1.0
-  Float final_volume   = 0.0
+  Utility.Wait(QuomoZAuditoryLossOnset.GetValue())
   
-  While (initial_volume >= final_volume)
-    MasterSoundCategory.SetVolume(initial_volume)
-    initial_volume = initial_volume - 0.1
-    Utility.Wait(0.35)
+  Float currentVolume = 1.0
+  Float waitInterval = QuomoZAuditoryLossSpan.GetValue() * 0.1
+  
+  While (currentVolume + 0.05 >= silence) ; avoid float imprecision errors
+    MasterSoundCategory.SetVolume(currentVolume)
+    currentVolume = currentVolume - 0.1
+    Utility.Wait(waitInterval)
   EndWhile
 
 EndEvent
@@ -31,3 +35,7 @@ GlobalVariable Property QuomoZInstantMusicMuteToggle  Auto
 SoundCategory Property AudioCategoryMUS  Auto  
 
 GlobalVariable Property QuomoZInstantSoundMuteToggle  Auto  
+
+GlobalVariable Property QuomoZAuditoryLossOnset  Auto  
+
+GlobalVariable Property QuomoZAuditoryLossSpan  Auto  
