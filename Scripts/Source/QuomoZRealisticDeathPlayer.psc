@@ -21,24 +21,19 @@ Quest Property QuomoZRealisticDeathQ Auto
 Bool died_quickly = true
 Bool is_player_alive = true
 
-;Allow testing mode to be toggeable via the in-game configuration menu for development purposes
-
 Event OnInit()
-  ;Debug.Trace("Initializing script.") Set for removal
   MasterSoundCategory.SetVolume(1.0)
   AudioCategoryMUS.UnMute() ; Mute preserves user audio settings better
-  ;Game.SetGameSettingFloat("fPlayerDeathReloadTime", 10.0) Set for removal
+
   player_property.GetActorBase().SetEssential(True)
-  ;player_property.StartDeferredKill()
 EndEvent
 
 Event OnPlayerLoadGame()
   MasterSoundCategory.SetVolume(1.0)
   AudioCategoryMUS.UnMute() ; Mute preserves user audio settings better
-  ;Game.SetGameSettingFloat("fPlayerDeathReloadTime", 10.0) Set for removal
+
   QuomoZRealisticDeathQ.RegisterForModEvent("QuomoZRealisticDeath_PlayerDied", "OnPlayerDied")
   player_property.GetActorBase().SetEssential(True)
-  ;player_property.StartDeferredKill()
 EndEvent
 
 Event OnHit(ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked)
@@ -46,7 +41,6 @@ Event OnHit(ObjectReference akAggressor, Form akSource, Projectile akProjectile,
     is_player_alive = false
     LastAggressor = akAggressor as Actor
     If (abPowerAttack || Math.abs(player_property.GetActorValuePercentage("Health")) >= 0.15)
-      ;Game.SetGameSettingFloat("fPlayerDeathReloadTime", 5.0)
       died_quickly = true
     EndIf
   EndIf
@@ -60,7 +54,13 @@ Function SendDeathEvent()
     EndIf
 EndFunction
 
-Function FadeToBlank()
+Event OnEnterBleedout()
+  Game.DisablePlayerControls(abMovement = true, abFighting = true)
+	player_property.StopCombat()
+	player_property.StopCombatAlarm()
+
+  SendDeathEvent() ; allows some multithreading to occur
+  
   ImageSpaceModifier blankIMod = QuomoZFadeToBlackImod;
   ImageSpaceModifier blankHoldIMod = QuomoZFadeToBlackHoldImod;
   
@@ -69,37 +69,28 @@ Function FadeToBlank()
     blankHoldIMod = QuomoZFadeToWhiteHoldImod;
   EndIf
 
-  Utility.Wait(0.5) ; regular vision
+  If (QuomoZFadeVisionToggle.GetValueInt() == 1)
+    Debug.Notification("Enter If statement in fadevisiontoggle")
+    If (QuomoZDeathProfileToggle.GetValueInt() == 0)
+      blankHoldIMod.Apply()
+    Else
+      Utility.Wait(QuomoZFadeVisionOnset.GetValue())
+      blankHoldIMod.ApplyCrossFade(QuomoZFadeVisionSpan.GetValue())
+    EndIf
+  Else
+    ; do nothing
+  EndIf
 
-  QuomoZBlurHoldIMod.ApplyCrossFade(1.8) ; Blur vision
-  Utility.Wait(1.6)
-
-  blankIMod.ApplyCrossFade(2.7) ; Fade vision to black
-  Utility.Wait(3.0)
-
-  blankIMod.PopTo(blankHoldIMod) ; Retain black vision
+  Utility.Wait(QuomoZTimeUntilLastSenseLost.GetValue())
+  ;blankHoldIMod.PopTo(blankHoldIMod)
   
-EndFunction
-
-Event OnEnterBleedout()
-  Game.DisablePlayerControls(abMovement = true, abFighting = true)
-	player_property.StopCombat()
-	player_property.StopCombatAlarm()
-  ;If (died_quickly)
-
-  SendDeathEvent()
-  
-  FadeToBlank()
+  ;Game.FadeOutGame(True, !QuomoZBlankScreenToggle.GetValueInt(), QuomoZFadeVisionOnset.GetValue(), QuomoZFadeVisionSpan.GetValue())
   
   If (QuomoZBlankScreenReloadModeToggle.getValueInt() == 0)
-    player_property.GetActorBase().SetEssential(False)
-    player_property.KillEssential()
-    ;player_property.EndDeferredKill()
+    KillPlayer()
   ElseIf (QuomoZBlankScreenReloadModeToggle.getValueInt() == 1)
     Utility.Wait(QuomoZBlankScreenBeforeReloadTime.getValue()); Reflect about your death in darkness
-    player_property.GetActorBase().SetEssential(False)
-    player_property.KillEssential()
-    ;player_property.EndDeferredKill()
+    KillPlayer()
   Else
     RegisterForKey(QuomoZReloadKey.GetValueInt())
     is_player_alive = False
@@ -109,15 +100,15 @@ EndEvent
 
 Event OnKeyUp(Int keyCode, float holdTime)
   If (keyCode == QuomoZReloadKey.GetValue() && !is_player_alive)
-  
     UnregisterForKey(QuomoZReloadKey.GetValueInt())
-  
-    player_property.GetActorBase().SetEssential(False)
-    player_property.KillEssential()
-    ;player_property.EndDeferredKill()
+    KillPlayer()
   EndIf
-
 EndEvent
+
+Function KillPlayer()
+  player_property.GetActorBase().SetEssential(False)
+  player_property.KillEssential()
+EndFunction
 
 Spell Property QuomoZRealisticDeathDisarmSelf  Auto  
 
@@ -128,3 +119,13 @@ GlobalVariable Property QuomoZBlankScreenBeforeReloadTime  Auto
 GlobalVariable Property QuomoZBlankScreenReloadModeToggle  Auto  
 
 GlobalVariable Property QuomoZReloadKey  Auto  
+
+GlobalVariable Property QuomoZFadeVisionOnset  Auto  
+
+GlobalVariable Property QuomoZFadeVisionSpan  Auto  
+
+GlobalVariable Property QuomoZTimeUntilLastSenseLost  Auto  
+
+GlobalVariable Property QuomoZDeathProfileToggle  Auto  
+
+GlobalVariable Property QuomoZFadeVisionToggle  Auto  
