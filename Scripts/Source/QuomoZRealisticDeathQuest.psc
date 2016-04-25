@@ -4,7 +4,7 @@ Event OnInit()
   RegisterForModEvent("QuomoZRealisticDeath_PlayerDied", "OnPlayerDied")
 EndEvent
 
-Event OnPlayerDied(Bool died_quickly)
+Event OnPlayerDied(Float mult)
   If (QuomoZInstantMusicMuteToggle.GetValueInt() == 1)
     AudioCategoryMUS.Mute()
   EndIf
@@ -17,10 +17,10 @@ Event OnPlayerDied(Bool died_quickly)
       Return
     EndIf
 
-    Utility.Wait(QuomoZAuditoryLossOnset.GetValue())
+    Utility.Wait(QuomoZAuditoryLossOnset.GetValue()*mult)
   
     Float currentVolume = 1.0
-    Float waitInterval = QuomoZAuditoryLossSpan.GetValue() * 0.1
+    Float waitInterval = QuomoZAuditoryLossSpan.GetValue() * mult * 0.1
   
     While (currentVolume + 0.05 >= silence) ; avoid float imprecision errors
       MasterSoundCategory.SetVolume(currentVolume)
