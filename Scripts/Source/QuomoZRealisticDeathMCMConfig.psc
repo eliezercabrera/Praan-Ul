@@ -4,7 +4,8 @@ Scriptname QuomoZRealisticDeathMCMConfig extends JaxonzMCMHelper
 import Debug
 
 bool bloodSplatterToggle
-Int iDeathProfileToggle = 0
+bool heartbeatToggle
+Int iDeathProfileToggle
 float fSliderVal = 12.2
 int iKeyMap = 32
 int iMenuSelection = 3
@@ -27,6 +28,7 @@ endEvent
 Event OnPageReset(string page)
 	SetCursorFillMode(TOP_TO_BOTTOM)
 	int iOID
+  iDeathProfileToggle = QuomoZDeathProfileToggle.GetValueInt()
 	if page == ""
 		AddHeaderOption("Realistic Death")
 		DefineMCMParagraph("Blank page description of Realistic Death")
@@ -40,8 +42,12 @@ Event OnPageReset(string page)
     DefineMCMMenuOptionGlobal("Blank Screen Duration", "Reload Immediately,Fixed Period,Until Keypress", QuomoZBlankScreenReloadModeToggle, 0, OPTION_FLAG_AS_TEXTTOGGLE, "Choose when the game will reload after the death sequence is over.")
     DefineMCMSliderOptionGlobal("Blank Screen Duration (seconds)", QuomoZBlankScreenBeforeReloadTime, 5.0, 0.1, 100.0, 0.1, "Set the time you will reflect in front of the blank screen.","{2}")
     DefineMCMKeymapOptionGlobal("Reload Key", QuomoZReloadKey, OPTION_FLAG_WITH_UNMAP, 0, "Choose the key that will reload the game if you have chosen to reflect until keypress.")
+    
     RegisterForModEvent("BloodSplatterToggle","OnBloodSplatterToggle")
 		DefineMCMToggleOption("Show Blood Splatter", bloodSplatterToggle, 0 , "A cinematic effect you can disable.", "BloodSplatterToggle")
+    
+    RegisterForModEvent("HeartbeatToggle","OnHeartbeatToggle")
+		DefineMCMToggleOption("Enable heartbeat", heartbeatToggle, 0 , "An effect you can disable.", "HeartbeatToggle")
     
     RegisterForModEvent("DeathProfileToggle","OnDeathProfileToggle")
 		DefineMCMMenuOption("Sensory Loss Mode", "Instant,Fixed,Dynamic", iDeathProfileToggle, 0, OPTION_FLAG_AS_TEXTTOGGLE, "Select the way in wish you will lose your senses: immediately, always the same way, or dynamically depending on the killing blow.", "DeathProfileToggle")
@@ -54,8 +60,9 @@ Event OnPageReset(string page)
 		AddEmptyOption()
 		
 		DefineMCMToggleOptionGlobal("Postmortem blows kill quickly", QuomoZPostmortemBlowInstaDeathToggle, 0, "When selected, when you receive an attack during the dying animation, you will lose your senses instantly.")
-    DefineMCMSliderOptionGlobal("Duration Minimum Multiplier", QuomoZDynamicMinMultiplier, 0.3, 0.10, 1.00, 0.01, "This multiplier determines how much faster you can lose senses when dying from powerful blows.","{2}")
-    DefineMCMSliderOptionGlobal("Minimum damage for insta-death", QuomoZMinDamageForInstaDeath, 0.20, 0.10, 1.00, 0.01, "You will never insta-die if the killing blow dealt less damage that this percentage of your health. Useful if your mods make most attacks take lots of HP but you don't want to always die instantly.","{2}")
+    DefineMCMSliderOptionGlobal("Duration Minimum Multiplier", QuomoZDynamicMinMultiplier, 0.30, 0.00, 1.00, 0.01, "This multiplier determines how much faster you can lose senses when dying from powerful blows.","{2}")
+    DefineMCMSliderOptionGlobal("Minimum damage for insta-death", QuomoZMinDamageForInstaDeath, 0.20, 0.00, 1.00, 0.01, "You will never insta-die if the killing blow dealt less damage than this percentage of your health. Useful if your mods make most attacks take lots of HP but you don't want to always die instantly.","{2}")
+    DefineMCMSliderOptionGlobal("Base chance of instadying", QuomoZBaseChanceForInstaDeath, 0.25, 0.00, 1.00, 0.01, "This is the base chance. It is modified by the killing blow: if it was blocked, if it was a powerattack, how much damage beyond 0 health it did, and so on.","{2}")
     
     AddHeaderOption("Auditory Loss")
     DefineMCMToggleOptionGlobal("Enabled", QuomoZAuditoryLossToggle, 0, "Decide if you'll lose your hearing.")
@@ -111,25 +118,52 @@ EndEvent
 Event OnBloodSplatterToggle(string eventName, string strArg, float numArg, Form sender)
   bloodSplatterToggle = numArg as Bool
   
+  QuomoZBloodSplatterToggle.SetValueInt(bloodSplatterToggle as Int)
+  
   If (bloodSplatterToggle)
-    Game.SetGameSettingFloat("fBloodSplatterMaxOpacity", QuomoZBloodSplatterMaxOpacity.GetValue())
-    Game.SetGameSettingFloat("fBloodSplatterMaxOpacity2", QuomoZBloodSplatterMaxOpacity2.GetValue())
-    Game.SetGameSettingFloat("fBloodSplatterMinOpacity", QuomoZBloodSplatterMinOpacity.GetValue())
-    Game.SetGameSettingFloat("fBloodSplatterMinOpacity2", QuomoZBloodSplatterMinOpacity2.GetValue())
+    Game.SetGameSettingFloat("fBloodSplatterFlareMult", QuomoZBloodSplatterFlareMult.GetValue())
+    Game.SetGameSettingFloat("fBloodSplatterFlareOffsetScale", QuomoZBloodSplatterFlareOffsetScale.GetValue())
+    Game.SetGameSettingFloat("fBloodSplatterFlareSize", QuomoZBloodSplatterFlareSize.GetValue())
+    Game.SetGameSettingFloat("fBloodSplatterMaxSize", QuomoZBloodSplatterMaxSize.GetValue())
+    Game.SetGameSettingFloat("fBloodSplatterMinSize", QuomoZBloodSplatterMinSize.GetValue())
   Else
-    QuomoZBloodSplatterMaxOpacity.SetValue(Game.GetGameSettingFloat("fBloodSplatterMaxOpacity"))
-    QuomoZBloodSplatterMaxOpacity2.SetValue(Game.GetGameSettingFloat("fBloodSplatterMaxOpacity2"))
-    QuomoZBloodSplatterMinOpacity.SetValue(Game.GetGameSettingFloat("fBloodSplatterMinOpacity"))
-    QuomoZBloodSplatterMinOpacity2.SetValue(Game.GetGameSettingFloat("fBloodSplatterMinOpacity2"))
+    QuomoZBloodSplatterFlareMult.SetValue(Game.GetGameSettingFloat("fBloodSplatterFlareMult"))
+    QuomoZBloodSplatterFlareOffsetScale.SetValue(Game.GetGameSettingFloat("fBloodSplatterFlareOffsetScale"))
+    QuomoZBloodSplatterFlareSize.SetValue(Game.GetGameSettingFloat("fBloodSplatterFlareSize"))
+    QuomoZBloodSplatterMaxSize.SetValue(Game.GetGameSettingFloat("fBloodSplatterMaxSize"))
+    QuomoZBloodSplatterMinSize.SetValue(Game.GetGameSettingFloat("fBloodSplatterMinSize"))
     
-    Game.SetGameSettingFloat("fBloodSplatterMaxOpacity", 0.00)
-    Game.SetGameSettingFloat("fBloodSplatterMaxOpacity2", 0.00)
-    Game.SetGameSettingFloat("fBloodSplatterMinOpacity", 0.00)
-    Game.SetGameSettingFloat("fBloodSplatterMinOpacity2", 0.00)
+    Game.SetGameSettingFloat("fBloodSplatterFlareMult", 0.00)
+    Game.SetGameSettingFloat("fBloodSplatterFlareOffsetScale", 0.00)
+    Game.SetGameSettingFloat("fBloodSplatterFlareSize", 0.00)
+    Game.SetGameSettingFloat("fBloodSplatterMaxSize", 0.00)
+    Game.SetGameSettingFloat("fBloodSplatterMinSize", 0.00)
+  EndIf
+EndEvent
+
+Event OnHeartbeatToggle(string eventName, string strArg, float numArg, Form sender)
+  heartbeatToggle = numArg as Bool
+  
+  QuomoZHeartbeatToggle.SetValueInt(heartbeatToggle as Int)
+  
+  If (heartbeatToggle)
+    Game.SetGameSettingFloat("fPlayerHealthHeartbeatFast", QuomoZPlayerHealthHeartbeatFast.GetValue())
+    Game.SetGameSettingFloat("fPlayerHealthHeartbeatSlow", QuomoZPlayerHealthHeartbeatSlow.GetValue())
+    Game.SetGameSettingFloat("fPlayerHealthHeartbeatFadeMS", QuomoZPlayerHealthHeartbeatFadeMS.GetValueInt())
+  Else
+    QuomoZPlayerHealthHeartbeatFast.SetValue(Game.GetGameSettingFloat("fPlayerHealthHeartbeatFast"))
+    QuomoZPlayerHealthHeartbeatSlow.SetValue(Game.GetGameSettingFloat("fPlayerHealthHeartbeatSlow"))
+    QuomoZPlayerHealthHeartbeatFadeMS.SetValueInt(Game.GetGameSettingInt("fPlayerHealthHeartbeatFadeMS"))
+    
+    Game.SetGameSettingFloat("fPlayerHealthHeartbeatFast", -100.00)
+    Game.SetGameSettingFloat("fPlayerHealthHeartbeatSlow", -100.00)
+    Game.SetGameSettingFloat("fPlayerHealthHeartbeatFadeMS", 0.00)
   EndIf
 EndEvent
 
 Event OnDeathProfileToggle(string eventName, string strArg, float numArg, Form sender)
+  Debug.Notification("Toggling death profile." + iDeathProfileToggle)
+  iDeathProfileToggle = numArg as Int
   QuomoZDeathProfileToggle.SetValueInt(iDeathProfileToggle)
   
   If (iDeathProfileToggle == 0)
@@ -147,7 +181,7 @@ Event OnDeathProfileToggle(string eventName, string strArg, float numArg, Form s
     
     Float fadeVisionTotalSpan = 0.0
     If (QuomoZFadeVisionToggle.GetValueInt() as Bool)
-      blurVisionTotalSpan = QuomoZVisionBlurOnset.GetValue() + QuomoZVisionBlurSpan.GetValue()
+      blurVisionTotalSpan = QuomoZFadeVisionOnset.GetValue() + QuomoZFadeVisionSpan.GetValue()
     EndIf
     
     Float maxTotalSpan = max(max(auditoryLossTotalSpan, blurVisionTotalSpan), fadeVisionTotalSpan)
@@ -165,11 +199,11 @@ Float Function max(Float a, Float b)
   EndIf
 EndFunction
 
-Event OnPlayerDied(Bool died_quickly)
+Event OnPlayerDied(Float mult)
 
   If (QuomoZVisionBlurToggle.GetValueInt() as Bool)
-    Utility.Wait(QuomoZVisionBlurOnset.GetValue())
-    QuomoZBlurHoldIMod.ApplyCrossFade(QuomoZVisionBlurSpan.GetValue())
+    Utility.Wait(QuomoZVisionBlurOnset.GetValue()*mult)
+    QuomoZBlurHoldIMod.ApplyCrossFade(QuomoZVisionBlurSpan.GetValue()*mult)
   Else
     return
   EndIf
@@ -180,15 +214,7 @@ GlobalVariable Property QuomoZBlankScreenReloadModeToggle  Auto
 
 GlobalVariable Property QuomoZBlankScreenBeforeReloadTime  Auto  
 
-GlobalVariable Property QuomoZReloadKey  Auto  
-
-GlobalVariable Property QuomoZBloodSplatterMaxOpacity  Auto  
-
-GlobalVariable Property QuomoZBloodSplatterMaxOpacity2  Auto  
-
-GlobalVariable Property QuomoZBloodSplatterMinOpacity  Auto  
-
-GlobalVariable Property QuomoZBloodSplatterMinOpacity2  Auto  
+GlobalVariable Property QuomoZReloadKey  Auto
 
 GlobalVariable Property QuomoZAuditoryLossOnset  Auto  
 
@@ -219,3 +245,25 @@ GlobalVariable Property QuomoZAuditoryLossToggle  Auto
 GlobalVariable Property QuomoZVisionBlurToggle  Auto  
 
 GlobalVariable Property QuomoZFadeVisionToggle  Auto  
+
+GlobalVariable Property QuomoZBaseChanceForInstaDeath  Auto  
+
+GlobalVariable Property QuomoZBloodSplatterToggle  Auto  
+
+GlobalVariable Property QuomoZBloodSplatterFlareMult  Auto  
+
+GlobalVariable Property QuomoZBloodSplatterFlareOffsetScale  Auto  
+
+GlobalVariable Property QuomoZBloodSplatterFlareSize  Auto  
+
+GlobalVariable Property QuomoZBloodSplatterMaxSize  Auto  
+
+GlobalVariable Property QuomoZBloodSplatterMinSize  Auto
+
+GlobalVariable Property QuomoZHeartbeatToggle  Auto  
+
+GlobalVariable Property QuomoZPlayerHealthHeartbeatFast  Auto  
+
+GlobalVariable Property QuomoZPlayerHealthHeartbeatSlow  Auto  
+
+GlobalVariable Property QuomoZPlayerHealthHeartbeatFadeMS  Auto  
