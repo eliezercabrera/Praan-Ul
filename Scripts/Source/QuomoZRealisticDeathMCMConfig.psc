@@ -42,7 +42,8 @@ Event OnPageReset(string page)
     DefineMCMMenuOptionGlobal("Blank Screen Duration", "Reload Immediately,Fixed Period,Until Keypress", QuomoZBlankScreenReloadModeToggle, 0, OPTION_FLAG_AS_TEXTTOGGLE, "Choose when the game will reload after the death sequence is over.")
     DefineMCMSliderOptionGlobal("Blank Screen Duration (seconds)", QuomoZBlankScreenBeforeReloadTime, 5.0, 0.1, 100.0, 0.1, "Set the time you will reflect in front of the blank screen.","{2}")
     DefineMCMKeymapOptionGlobal("Reload Key", QuomoZReloadKey, OPTION_FLAG_WITH_UNMAP, 0, "Choose the key that will reload the game if you have chosen to reflect until keypress.")
-    
+    DefineMCMToggleOptionGlobal("Post-mortem Tunnel Sound", QuomoZAfterDeathPitchToggle, 0, "You can remove the looping tunnel sound that plays once your character dies.")
+    DefineMCMMenuOptionGlobal("Death Animation", "Ragdoll,Regular Animation", QuomoZDeathAnimationToggle, 0, OPTION_FLAG_AS_TEXTTOGGLE, "Choose whether your mortal remains will immediately succumb to physics, or you'll dramatically fall to the ground.")
     RegisterForModEvent("BloodSplatterToggle","OnBloodSplatterToggle")
 		DefineMCMToggleOption("Show Blood Splatter", bloodSplatterToggle, 0 , "A cinematic effect you can disable.", "BloodSplatterToggle")
     
@@ -266,4 +267,8 @@ GlobalVariable Property QuomoZPlayerHealthHeartbeatFast  Auto
 
 GlobalVariable Property QuomoZPlayerHealthHeartbeatSlow  Auto  
 
-GlobalVariable Property QuomoZPlayerHealthHeartbeatFadeMS  Auto  
+GlobalVariable Property QuomoZPlayerHealthHeartbeatFadeMS  Auto
+
+GlobalVariable Property QuomoZAfterDeathPitchToggle Auto 
+
+GlobalVariable Property QuomoZDeathAnimationToggle Auto 
